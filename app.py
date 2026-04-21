@@ -11,10 +11,15 @@ st.set_page_config(page_title="Protein Lab", layout="wide")
 if "edit_id" not in st.session_state:
     st.session_state.edit_id = None
 
-# ------------------- MOBILE FIRST -------------------
+# ------------------- RESPONSIVE MODE -------------------
+view_mode = st.sidebar.radio("View Mode", ["Auto", "Desktop", "Mobile"])
+
 def is_mobile():
-    # Production: always use mobile-friendly layout
-    return True
+    if view_mode == "Mobile":
+        return True
+    if view_mode == "Desktop":
+        return False
+    return False
 
 # ------------------- LOGO -------------------
 try:
@@ -24,9 +29,6 @@ except:
     st.sidebar.warning("Upload logo.png")
 
 st.sidebar.title("Protein Lab")
-st.sidebar.markdown("---")
-st.sidebar.caption("Powered by Hrithik's Protein Lab")
-
 page = st.sidebar.radio("Navigation", ["Dashboard", "Add Customer"])
 
 # ------------------- STYLING -------------------
@@ -34,18 +36,18 @@ st.markdown("""
 <style>
 .metric-card {
     background-color: #111827;
-    padding: 18px;
+    padding: 20px;
     border-radius: 12px;
     text-align: center;
     border: 1px solid #1f2937;
 }
 .metric-title {
     color: #9ca3af;
-    font-size: 13px;
+    font-size: 14px;
 }
 .metric-value {
     color: white;
-    font-size: 24px;
+    font-size: 26px;
     font-weight: bold;
 }
 button {
@@ -88,11 +90,19 @@ plans = {
 if page == "Add Customer":
     st.title("➕ Add Customer")
 
-    # Mobile-first form (works everywhere)
-    name = st.text_input("Customer Name")
-    phone = st.text_input("Phone Number")
-    start_date = st.date_input("Start Date")
-    plan = st.selectbox("Plan", list(plans.keys()))
+    if is_mobile():
+        name = st.text_input("Customer Name")
+        phone = st.text_input("Phone Number")
+        start_date = st.date_input("Start Date")
+        plan = st.selectbox("Plan", list(plans.keys()))
+    else:
+        col1, col2 = st.columns(2)
+        name = col1.text_input("Customer Name")
+        phone = col2.text_input("Phone Number")
+
+        col3, col4 = st.columns(2)
+        start_date = col3.date_input("Start Date")
+        plan = col4.selectbox("Plan", list(plans.keys()))
 
     if st.button("Add Customer"):
         if name and phone:
@@ -185,31 +195,58 @@ if page == "Dashboard":
 
         df = df.sort_values(by="days_left")
 
-        # -------- CUSTOMER LIST (MOBILE CARDS) --------
+        # -------- CUSTOMER LIST --------
         st.subheader("📋 Customers")
 
+        mobile = is_mobile()
+
         for _, row in df.iterrows():
-            with st.container():
-                st.markdown(f"""
-                ### {row['name']}
-                📞 {row['phone']}  
-                📦 {row['plan']}  
-                💰 ₹{row['price']}  
-                ⏳ {row['days_left']} days  
-                🔔 {row['status']}
-                """)
 
-                col1, col2 = st.columns(2)
+            if mobile:
+                # -------- MOBILE CARD --------
+                with st.container():
+                    st.markdown(f"""
+                    ### {row['name']}
+                    📞 {row['phone']}  
+                    📦 {row['plan']}  
+                    💰 ₹{row['price']}  
+                    ⏳ {row['days_left']} days  
+                    🔔 {row['status']}
+                    """)
 
-                if col1.button("✏️ Edit", key=f"edit_{row['id']}"):
+                    col1, col2 = st.columns(2)
+
+                    if col1.button("✏️ Edit", key=f"edit_m_{row['id']}"):
+                        st.session_state.edit_id = row["id"]
+
+                    if col2.button("🗑 Delete", key=f"del_m_{row['id']}"):
+                        c.execute("DELETE FROM customers WHERE id=?", (row["id"],))
+                        conn.commit()
+                        st.rerun()
+
+                    st.markdown("---")
+
+            else:
+                # -------- DESKTOP TABLE --------
+                col1, col2, col3, col4, col5, col6, col7 = st.columns([2,2,2,2,2,1,1])
+
+                if row["id"] == st.session_state.edit_id:
+                    col1.markdown(f"👉 **{row['name']}**")
+                else:
+                    col1.write(f"**{row['name']}**")
+
+                col2.write(row["plan"])
+                col3.write(f"₹{row['price']}")
+                col4.write(row["status"])
+                col5.write(f"{row['days_left']} days")
+
+                if col6.button("✏️", key=f"edit_{row['id']}"):
                     st.session_state.edit_id = row["id"]
 
-                if col2.button("🗑 Delete", key=f"del_{row['id']}"):
+                if col7.button("🗑", key=f"del_{row['id']}"):
                     c.execute("DELETE FROM customers WHERE id=?", (row["id"],))
                     conn.commit()
                     st.rerun()
-
-                st.markdown("---")
 
         # -------- EDIT FORM --------
         if st.session_state.edit_id:
