@@ -119,12 +119,27 @@ if page == "Dashboard":
 
         df["status"] = df["days_left"].apply(status)
 
-        # -------- METRICS --------
+        # -------- MAIN METRICS --------
         col1, col2, col3 = st.columns(3)
 
         col1.markdown(f'<div class="metric-card"><div class="metric-title">Customers</div><div class="metric-value">{len(df)}</div></div>', unsafe_allow_html=True)
         col2.markdown(f'<div class="metric-card"><div class="metric-title">Sales</div><div class="metric-value">₹{df["price"].sum()}</div></div>', unsafe_allow_html=True)
         col3.markdown(f'<div class="metric-card"><div class="metric-title">Profit</div><div class="metric-value">₹{int(df["profit"].sum())}</div></div>', unsafe_allow_html=True)
+
+        st.markdown("---")
+
+        # -------- PLAN METRICS (NEW BIG CARDS) --------
+        trial_count = len(df[df["plan"] == "3 Days Trial"])
+        weekly_count = len(df[df["plan"] == "Weekly Plan"])
+        single_count = len(df[df["plan"] == "Monthly Single Meal"])
+        dual_count = len(df[df["plan"] == "Monthly Dual Meal"])
+
+        col4, col5, col6, col7 = st.columns(4)
+
+        col4.markdown(f'<div class="metric-card"><div class="metric-title">Trial Plans</div><div class="metric-value">{trial_count}</div></div>', unsafe_allow_html=True)
+        col5.markdown(f'<div class="metric-card"><div class="metric-title">Weekly Plans</div><div class="metric-value">{weekly_count}</div></div>', unsafe_allow_html=True)
+        col6.markdown(f'<div class="metric-card"><div class="metric-title">Single Meal</div><div class="metric-value">{single_count}</div></div>', unsafe_allow_html=True)
+        col7.markdown(f'<div class="metric-card"><div class="metric-title">Dual Meal</div><div class="metric-value">{dual_count}</div></div>', unsafe_allow_html=True)
 
         st.markdown("---")
 
@@ -140,7 +155,6 @@ if page == "Dashboard":
         # -------- TABLE --------
         st.subheader("📋 Customer List")
 
-        # Header
         h1, h2, h3, h4, h5, h6, h7 = st.columns([2,2,2,2,2,1,1])
         h1.write("**Name**")
         h2.write("**Plan**")
