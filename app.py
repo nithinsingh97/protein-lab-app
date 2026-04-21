@@ -136,10 +136,10 @@ if page == "Dashboard":
 
         col4, col5, col6, col7 = st.columns(4)
 
-        col4.markdown(f'<div class="metric-card"><div class="metric-title">Trial Plans</div><div class="metric-value">{trial_count}</div></div>', unsafe_allow_html=True)
+        col4.markdown(f'<div class="metric-card"><div class="metric-title">3 Day Trial Plans</div><div class="metric-value">{trial_count}</div></div>', unsafe_allow_html=True)
         col5.markdown(f'<div class="metric-card"><div class="metric-title">Weekly Plans</div><div class="metric-value">{weekly_count}</div></div>', unsafe_allow_html=True)
-        col6.markdown(f'<div class="metric-card"><div class="metric-title">Single Meal</div><div class="metric-value">{single_count}</div></div>', unsafe_allow_html=True)
-        col7.markdown(f'<div class="metric-card"><div class="metric-title">Dual Meal</div><div class="metric-value">{dual_count}</div></div>', unsafe_allow_html=True)
+        col6.markdown(f'<div class="metric-card"><div class="metric-title">Monthly Single Meal</div><div class="metric-value">{single_count}</div></div>', unsafe_allow_html=True)
+        col7.markdown(f'<div class="metric-card"><div class="metric-title">Monthly Dual Meal</div><div class="metric-value">{dual_count}</div></div>', unsafe_allow_html=True)
 
         st.markdown("---")
 
